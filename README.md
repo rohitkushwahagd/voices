@@ -1,7 +1,11 @@
 # voices
 
 Rohit's offline narrator voices for the animated psychology videos (animation-studio + faceless-psychology-video skills).
-The voice files live in the **v1 release** of this repo, not in git history; the repo holds the setup script and shims.
+The voice files live on two branches, split into 90 MB parts because GitHub's file limit is 100 MB:
+- `voices-en`: Piper and Kokoro, about 580 MB.
+- `voices-hi`: AI4Bharat Hindi, about 1.6 GB.
+
+`main` holds only the setup script and shims, so cloning it is instant. `setup.sh` rejoins the parts and checks every file's SHA-256.
 
 ## Setup in a new Claude workspace
 
@@ -22,7 +26,7 @@ Then pick a voice for the animation engine (it calls whatever `piper` is first o
 
 In a song.js, set the same values on `process.env` before `Voice.speak(...)`.
 
-## What's in the v1 release
+## What's stored (after setup.sh rejoins the parts)
 
 | File | Voice(s) | Size |
 |---|---|---|
