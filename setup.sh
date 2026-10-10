@@ -12,11 +12,13 @@
 #   export PATH=~/voice-library/use/kokoro:$PATH PIPER_MODEL=kokoro KOKORO_VOICE=am_michael
 #   export PATH=~/voice-library/use/piper-ryan:$PATH PIPER_MODEL=~/voice-library/piper/en-us-ryan-high/en-us-ryan-high.onnx
 #   export PATH=~/voice-library/use/hindi:$PATH PIPER_MODEL=hindi HINDI_SPEAKER=male
+# Multi-character films (a voice per line, e.g. { text, who: 'P', voice: 'hi:male:pitch=-2' }):
+#   export PATH=~/voice-library/use/router:$PATH PIPER_MODEL=hi:male
 set -euo pipefail
 URL=https://github.com/rohitkushwahagd/voices
 HOME_DIR=${VOICES_HOME:-$HOME/voice-library}
 HERE=$(cd "$(dirname "$0")" && pwd)
-mkdir -p "$HOME_DIR"/{piper,kokoro,ai4bharat,use/kokoro,use/piper-ryan,use/piper-lessac,use/hindi,dl}
+mkdir -p "$HOME_DIR"/{piper,kokoro,ai4bharat,use/kokoro,use/piper-ryan,use/piper-lessac,use/hindi,use/router,dl}
 cd "$HOME_DIR"
 
 # fetch one branch (shallow), rejoin the parts, check them against SHA256SUMS
@@ -38,12 +40,13 @@ mv dl/english-voices.mp3 dl/hindi-voices.mp3 . 2>/dev/null || true
 pip install -q --break-system-packages piper-tts kokoro-onnx soundfile 2>&1 | grep -v WARNING || true
 
 # the shims: each folder holds a `piper` that the animation engine will call
-cp "$HERE"/bin/kokoro_tts.py "$HERE"/bin/hindi_tts.py "$HOME_DIR"/
+cp "$HERE"/bin/kokoro_tts.py "$HERE"/bin/hindi_tts.py "$HERE"/bin/voice_router.py "$HOME_DIR"/
 printf '#!/bin/bash\n[ "$1" = "--help" ] && exit 0\nexec python3 %s/kokoro_tts.py "$@" 2>/dev/null\n' "$HOME_DIR" > use/kokoro/piper
 PIPER_BIN=$(command -v piper)
 printf '#!/bin/bash\nexec %s --length-scale 1.12 --sentence-silence 0.4 "$@"\n' "$PIPER_BIN" > use/piper-ryan/piper
 cp use/piper-ryan/piper use/piper-lessac/piper
 printf '#!/bin/bash\n[ "$1" = "--help" ] && exit 0\nexec python3 %s/hindi_tts.py "$@" 2>/dev/null\n' "$HOME_DIR" > use/hindi/piper
+printf '#!/bin/bash\n[ "$1" = "--help" ] && exit 0\nexec python3 %s/voice_router.py "$@" 2>/dev/null\n' "$HOME_DIR" > use/router/piper
 chmod +x use/*/piper
 
 if [ "${1:-}" = "--hindi" ]; then

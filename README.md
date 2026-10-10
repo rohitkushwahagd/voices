@@ -26,6 +26,24 @@ Then pick a voice for the animation engine (it calls whatever `piper` is first o
 
 In a song.js, set the same values on `process.env` before `Voice.speak(...)`.
 
+### Several characters in one film (a voice per line)
+Use the router and give every line its own `voice` spec:
+```js
+process.env.PATH = `${process.env.HOME}/voice-library/use/router:${process.env.PATH}`;
+process.env.PIPER_MODEL = 'hi:male'; // used by lines without a voice
+Voice.speak([
+  { at: 0.5, who: 'P', voice: 'hi:male:pitch=-2:speed=0.95', text: 'नमस्ते दोस्तों!' },   // Pappu
+  { at: 3.0, who: 'A', voice: 'hi:female:pitch=1', text: 'पप्पू! दूध पी!' },             // Amma
+  { at: 5.5, who: 'C', voice: 'kokoro:hm_psi:pitch=3:speed=1.05', text: 'भैया!' },       // Chintu
+], { out, length });
+```
+Specs are `hi:male|female`, `kokoro:<voice>` and `piper:ryan|lessac`. Each can take optional modifiers:
+- `:pitch=<semitones>`
+- `:speed=<factor>`
+- `:vol=<factor>`
+
+`who` drives each character's lip-sync (`Subs.mouth(VO, t, 'P')`).
+
 ## What's stored (after setup.sh rejoins the parts)
 
 | File | Voice(s) | Size |
